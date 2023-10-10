@@ -1,7 +1,7 @@
 // frontend/src/components/Login.js
 
-import React, { useState } from 'react';
 import axios from 'axios';
+import React, { useState } from 'react';
 
 function Login() {
     const [email, setEmail] = useState('');
@@ -20,7 +20,7 @@ function Login() {
 
     return (
         <div>
-            <h2>Connexion</h2>
+            <h2>Connexionn</h2>
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Email:</label>
