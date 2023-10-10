@@ -47,7 +47,7 @@ async def signup(user: User):
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    result = await collection.insert_one(user.dict())
+    result = await collection.insert_one(user.model_dump())
     new_user = await collection.find_one({"_id": result.inserted_id})
     new_user["_id"] = str(new_user["_id"])
     return new_user
