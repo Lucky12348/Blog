@@ -1,5 +1,5 @@
 from bson import ObjectId
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel
@@ -79,11 +79,17 @@ async def test_db_connection():
         result = await database.command("ping")
         if result.get("ok") == 1:
             return {
-                "message": "La connexion à la base de données MongoDB fonctionne correctement."
+                "message": (
+                    "La connexion à la base de données "
+                    + "MongoDB fonctionne correctement."
+                )
             }
         else:
-            return {"message": "La connexion à la base de données MongoDB a échoué."}
+            return {"message": ("La connexion à la base de données MongoDB a échoué.")}
     except Exception as e:
         return {
-            "message": f"Erreur lors de la connexion à la base de données MongoDB : {str(e)}"
+            "message": (
+                "Erreur lors de la connexion à la base de données "
+                + f"MongoDB : {str(e)}"
+            )
         }
