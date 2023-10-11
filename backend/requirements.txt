@@ -1,3 +1,15 @@
 fastapi
 uvicorn
 motor
+
+black
+isort
+flake8
+pip-tools
+pytest
+requests # Required by fastapi-test.
+types-requests
+httpx
+ipython
+pillow
+motor-types

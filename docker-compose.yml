@@ -26,10 +26,12 @@ services:
 
   frontend:
     build:
-      context: ./frontend # Assurez-vous que c'est le bon chemin vers votre répertoire frontend
+      context: ./frontend 
       dockerfile: Dockerfile
     ports:
       - "3000:80"
+    volumes:
+      - ./frontend:/code
 
   mongo-express:
     image: mongo-express

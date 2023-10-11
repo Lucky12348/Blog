@@ -1,26 +1,26 @@
-// frontend/src/components/Login.js
+// frontend/src/components/Signup.js
 
-import axios from 'axios';
 import React, { useState } from 'react';
+import axios from 'axios';
 
-function Login() {
+function Signup() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8000/login', { email, password });
+            const response = await axios.post('http://localhost:8000/signup', { email, password });
             console.log(response.data);
-            alert('Connexion réussie !');
+            alert('Inscription réussie !');
         } catch (error) {
-            alert('Erreur lors de la connexion.');
+            alert('Erreur lors de l\'inscription.');
         }
     };
 
     return (
         <div>
-            <h2>Connexionn</h2>
+            <h2>Inscription</h2>
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Email:</label>
@@ -30,10 +30,10 @@ function Login() {
                     <label>Mot de passe:</label>
                     <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
                 </div>
-                <button type="submit">Se connecter</button>
+                <button type="submit">S'inscrire</button>
             </form>
         </div>
     );
 }
 
-export default Login;
+export default Signup;

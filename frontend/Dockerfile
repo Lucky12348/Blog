@@ -1,29 +1,13 @@
-# Utilisez une image Node pour construire l'application
-FROM node:14 AS build
+FROM node:20-alpine
 
-# Définir le répertoire de travail
-WORKDIR /app
+WORKDIR /code
 
-# Copier package.json et package-lock.json
-COPY package*.json ./
+COPY package.json yarn.lock ./
 
-# Installer les dépendances
-RUN npm install
+RUN yarn install
 
-# Copier le reste des fichiers de l'application
-COPY . .
+# Bundle app source
+COPY . /code
 
-# Construire l'application
-RUN npm run build
-
-# Utilisez une image Nginx pour servir l'application
-FROM nginx:alpine
-
-# Copier les fichiers de build de l'étape précédente
-COPY --from=build /app/build /usr/share/nginx/html
-
-# Exposer le port 80
-EXPOSE 80
-
-# Démarrer Nginx
-CMD ["nginx", "-g", "daemon off;"]
+EXPOSE 8080
+CMD [ "yarn", "run", "dev" ]
