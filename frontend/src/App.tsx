@@ -1,17 +1,52 @@
+// App.tsx
 import type { ReactElement } from 'react'
-import { lazy } from 'react'
+import React from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-
-const Gallery = lazy(async () => import('pages/Gallery'))
-const Details = lazy(async () => import('pages/Details'))
+import AddPost from './components/AddPost'
+import DisplayPosts2 from './components/Diplay2'
+import DisplayPosts from './components/DisplayPost'
+import ProtectedPage from './components/ProtectedPage'
+import Accueil from './pages/Accueil'
+import { SuperBlog } from './pages/SuperBlog'
 
 export default function App(): ReactElement {
 	return (
 		<BrowserRouter>
-				<Routes>
-					<Route path='/' element={<Gallery />} />
-					<Route path=':fruitName' element={<Details />} />
-				</Routes>
+			<Routes>
+				<Route path='/' element={<Accueil />} />
+				<Route
+					path='/blog'
+					element={
+						<ProtectedPage>
+							<SuperBlog />
+						</ProtectedPage>
+					}
+				/>
+				<Route
+					path='/addPost'
+					element={
+						<ProtectedPage>
+							<AddPost />
+						</ProtectedPage>
+					}
+				/>
+				<Route
+					path='/affPost'
+					element={
+						<ProtectedPage>
+							<DisplayPosts />
+						</ProtectedPage>
+					}
+				/>
+				<Route
+					path='/affPost2'
+					element={
+						<ProtectedPage>
+							<DisplayPosts2 />
+						</ProtectedPage>
+					}
+				/>
+			</Routes>
 		</BrowserRouter>
 	)
 }

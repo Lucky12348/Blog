@@ -1,7 +1,6 @@
 fastapi
 uvicorn
 motor
-
 black
 isort
 flake8
@@ -13,3 +12,5 @@ httpx
 ipython
 pillow
 motor-types
+pyjwt
+
