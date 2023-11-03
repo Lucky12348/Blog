@@ -53,8 +53,7 @@ function DisplayPosts() {
 								</h1>
 								<div className='postcard__subtitle small'>
 									<time dateTime='2020-05-25 12:00:00'>
-										<i className='fas fa-calendar-alt mr-2'></i>Mon, May 25th
-										2020
+										<i className='fas fa-calendar-alt mr-2'></i>date à ajouter
 									</time>
 								</div>
 								<div className='postcard__bar'></div>
@@ -68,11 +67,12 @@ function DisplayPosts() {
 										<i className='fas fa-tag mr-2'></i>Catégorie
 									</li>
 									<li className='tag__item'>
-										<i className='fas fa-clock mr-2'></i>55 mins.
+										<i className='fas fa-clock mr-2'></i>temps depuis le post
 									</li>
 									<li className={`tag__item play ${cardClass}`}>
 										<a href='#'>
-											<i className='fas fa-play mr-2'></i>Lire
+											<i className='fas fa-play mr-2'></i>Lire (ici un lien vers
+											post)
 										</a>
 									</li>
 								</ul>

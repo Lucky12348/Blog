@@ -3,7 +3,6 @@ import type { ReactElement } from 'react'
 import React from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import AddPost from './components/AddPost'
-import DisplayPosts2 from './components/Diplay2'
 import DisplayPosts from './components/DisplayPost'
 import ProtectedPage from './components/ProtectedPage'
 import Accueil from './pages/Accueil'
@@ -35,14 +34,6 @@ export default function App(): ReactElement {
 					element={
 						<ProtectedPage>
 							<DisplayPosts />
-						</ProtectedPage>
-					}
-				/>
-				<Route
-					path='/affPost2'
-					element={
-						<ProtectedPage>
-							<DisplayPosts2 />
 						</ProtectedPage>
 					}
 				/>
