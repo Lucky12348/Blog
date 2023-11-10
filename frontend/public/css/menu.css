@@ -1,40 +1,37 @@
-@import url(https://fonts.googleapis.com/css?family=Raleway:400, 700, 800);
+@import url("https://fonts.googleapis.com/css?family=Raleway:400, 700, 800");
 *,
-*:after,
-*:before {
-	-webkit-box-sizing: border-box;
+*::after,
+*::before {
 	box-sizing: border-box;
 }
-html {
-	height: 100%;
-}
 body {
-	height: 100%;
-	background: #444;
-	font-family: 'Raleway', Arial, sans-serif;
+	background: ##e2e8f0;
 }
 #app {
 	height: 100%;
 }
 main a {
-	color: #4e4a46;
+	color: #fff;
 	text-decoration: none;
 }
 main a:hover,
 main a:focus {
-	color: #c94e50;
+	color: #2596be;
 }
 main {
 	color: #fffce1;
 	height: 100%;
 	padding: 3em 2em;
 	text-align: center;
-	background: #b4bad2;
 	overflow: auto;
 }
 h1 {
+	color: #282a35;
 	font-weight: 800;
 	font-size: 3.75em;
+}
+p{
+	color: #282a35;
 }
 .bm-cross {
 	background-color: #fff; /* ou une autre couleur de votre choix */
@@ -68,10 +65,7 @@ h1 {
 	text-transform: uppercase;
 	letter-spacing: 1px;
 	font-weight: 800;
-	border-top-left-radius: 20px 50px;
-	border-top-right-radius: 20px 50px;
-	border-bottom-right-radius: 20px 50px;
-	border-bottom-left-radius: 20px 50px;
+	border-radius: 20px 50px 20px 50px 20px 50px 20px 50px;
 	cursor: pointer;
 }
 .demo-buttons a.current-demo {
@@ -102,11 +96,12 @@ h1 {
 	background: #c94e50;
 	color: #fffce1;
 }
-@media screen and (max-width: 40em) {
+@media screen and (width <= 40em) {
 	main {
 		font-size: 80%;
 	}
 	h1 {
+		color: #282a35;
 		padding-top: 1em;
 		font-size: 2.5em;
 	}
@@ -120,7 +115,7 @@ h1 {
 	width: 36px;
 	height: 30px;
 	left: 36px;
-	top: 36px;
+	top: 85px;
 }
 .bm-burger-button button:focus {
 	outline: 2px solid #c94e50;
@@ -140,7 +135,7 @@ h1 {
 	fill: #373a47;
 }
 .bm-menu {
-	background: #373a47;
+	background: rgb(17 24 39 );
 }
 .bm-menu a {
 	color: #b8b7ad;
@@ -152,7 +147,7 @@ h1 {
 .bm-item-list a {
 	padding: 0.8em;
 	text-decoration: none;
-	box-shadow: inset 0 -1px rgba(0, 0, 0, 0.2);
+	box-shadow: inset 0 -1px rgb(0 0 0 / 20%);
 }
 .bm-item-list a span {
 	margin-left: 10px;
@@ -224,8 +219,8 @@ h1 {
 .menu-4 h2 {
 	margin: 0 auto;
 	padding: 2em 1em;
-	color: rgba(0, 0, 0, 0.4);
-	box-shadow: inset 0 -1px rgba(0, 0, 0, 0.2);
+	color: rgb(0 0 0 / 40%);
+	box-shadow: inset 0 -1px rgb(0 0 0 / 20%);
 }
 .menu-4 h2 i {
 	margin-left: 0.2em;
@@ -240,7 +235,7 @@ h1 {
 	transition:
 		background 0.3s,
 		box-shadow 0.3s;
-	box-shadow: inset 0 -1px rgba(0, 0, 0, 0.2);
+	box-shadow: inset 0 -1px rgb(0 0 0 / 20%);
 }
 .menu-4 a span {
 	letter-spacing: 1px;
@@ -248,8 +243,8 @@ h1 {
 }
 .menu-4 a:hover,
 .menu-4 a:focus {
-	background: rgba(0, 0, 0, 0.2);
-	box-shadow: inset 0 -1px rgba(0, 0, 0, 0);
+	background: rgb(0 0 0 / 20%);
+	box-shadow: inset 0 -1px rgb(0 0 0 / 0%);
 	color: #b8b7ad;
 }
 .menu-4 .bm-cross-button button:focus {
@@ -342,8 +337,8 @@ h1 {
 #fallDown h2 {
 	margin: 0 auto;
 	padding: 2em 1em;
-	color: rgba(0, 0, 0, 0.4);
-	box-shadow: inset 0 -1px rgba(0, 0, 0, 0.2);
+	color: rgb(0 0 0 / 40%);
+	box-shadow: inset 0 -1px rgb(0 0 0 / 20%);
 }
 #scaleDown h2 i,
 #scaleRotate h2 i,
@@ -367,7 +362,7 @@ h1 {
 	transition:
 		background 0.3s,
 		box-shadow 0.3s;
-	box-shadow: inset 0 -1px rgba(0, 0, 0, 0.2);
+	box-shadow: inset 0 -1px rgb(0 0 0 / 20%);
 }
 #scaleDown a span,
 #scaleRotate a span,
@@ -384,8 +379,8 @@ h1 {
 #scaleRotate a:focus,
 #pushRotate a:focus,
 #fallDown a:focus {
-	background: rgba(0, 0, 0, 0.2);
-	box-shadow: inset 0 -1px rgba(0, 0, 0, 0);
+	background: rgb(0 0 0 / 20%);
+	box-shadow: inset 0 -1px rgb(0 0 0 / 0%);
 	color: #b8b7ad;
 }
 #scaleDown .bm-cross-button button:focus,
@@ -410,14 +405,14 @@ h1 {
 		Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', Helvetica, Arial,
 		sans-serif;
 }
-@media screen and (max-width: 40em) {
+@media screen and (width <= 40em) {
 	#carbonads {
 		left: 0;
 		right: 0;
 		margin: auto;
 	}
 }
-@media screen and (max-width: 80em) {
+@media screen and (width <= 80em) {
 	main {
 		padding-bottom: 12em;
 	}
@@ -429,7 +424,7 @@ h1 {
 	display: flex;
 	max-width: 330px;
 	background-color: #fafafa;
-	box-shadow: 0 1px 4px 1px rgba(0, 0, 0, 0.1);
+	box-shadow: 0 1px 4px 1px rgb(0 0 0 / 10%);
 	z-index: 100;
 	border-radius: 5px;
 }

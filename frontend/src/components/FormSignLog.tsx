@@ -3,7 +3,6 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import { useMutation } from '@tanstack/react-query'
 import type { FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
 import '../../public/css/styles.css'
 
 interface UserData {
@@ -46,8 +45,6 @@ const login = async (userData: UserData): Promise<Record<string, unknown>> => {
 }
 
 export function Accueil(): JSX.Element {
-	const navigate = useNavigate()
-
 	const loginMutation = useMutation(login, {
 		onSuccess: data => {
 			if (typeof data.access_token === 'string') {
@@ -55,7 +52,7 @@ export function Accueil(): JSX.Element {
 			} else {
 				// handle the case where data.access_token is not a string
 			}
-			navigate('/blog')
+			window.location.reload()
 		}
 	})
 
@@ -64,7 +61,7 @@ export function Accueil(): JSX.Element {
 			if (typeof data.access_token === 'string') {
 				localStorage.setItem('token', data.access_token)
 			}
-			navigate('/blog')
+			window.location.reload()
 		}
 	})
 	const onHandleSignupSubmit = (event: FormEvent<HTMLFormElement>): void => {

@@ -1,4 +1,5 @@
 /// <reference types="vitest" />
+import eslintPlugin from '@nabla/vite-plugin-eslint'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -20,12 +21,18 @@ export default defineConfig(({ mode }) => ({
 			reportsDirectory: 'coverage'
 		}
 	},
+	define: {
+		// By default, Vite doesn't include shims for NodeJS/
+		// necessary for segment analytics lib to work
+		global: {}
+	},
 	plugins: [
 		tsconfigPaths(),
 		react(),
 		...(mode === 'test'
 			? []
 			: [
+					eslintPlugin(),
 					VitePWA({
 						registerType: 'autoUpdate',
 						includeAssets: [

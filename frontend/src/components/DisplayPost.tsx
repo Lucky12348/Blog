@@ -1,87 +1,132 @@
-import React, { useEffect, useState } from 'react'
-import '../../public/css/display.css'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import logoDefault from '../../public/images/defaultPost.png'
 
+export interface Post {
+	_id: string
+	title: string
+	description: string
+	image: string
+	date: string
+}
+
+const fetchGet = async ({ pageParam: pageParameter = 0 }): Promise<Post[]> => {
+	const limit = pageParameter === 0 ? 4 : 3 // 4 pour la première page, 3 pour les suivantes
+	const response = await fetch(
+		`http://localhost:8000/posts?limit=${limit}&offset=${pageParameter}`
+	)
+	if (!response.ok) {
+		throw new Error('Network response was not ok')
+	}
+	return response.json() as Promise<Post[]>
+}
+
 function DisplayPosts() {
-	const [posts, setPosts] = useState([])
-	const [loading, setLoading] = useState(true)
+	const {
+		data,
+		isError,
+		error,
+		isLoading,
+		fetchNextPage,
+		hasNextPage,
+		isFetchingNextPage
+	} = useInfiniteQuery(['posts'], fetchGet, {
+		getNextPageParam: (lastPage, allPages) => {
+			// S'il n'y a pas de posts sur la dernière page, il n'y a plus de pages à charger
+			if (lastPage.length === 0) return
+			// Calculez le nouvel offset en fonction du nombre total de posts chargés
+			const nextPageOffset = allPages.flat().length
+			return nextPageOffset
+		}
+	})
 
-	useEffect(() => {
-		fetch('http://localhost:8000/getPosts')
-			.then(response => response.json())
-			.then(data => {
-				setPosts(data)
-				setLoading(false)
-			})
-			.catch(error => {
-				console.error('Erreur lors de la récupération des posts:', error)
-				setLoading(false)
-			})
-	}, [])
-
-	const getCardClass = index => {
-		const classes = ['blue', 'red', 'green', 'yellow']
-		return classes[index % 4]
+	if (isLoading) {
+		return <p>Loading...</p>
 	}
 
-	if (loading) {
-		return <div>Chargement des posts...</div>
+	if (isError) {
+		return <p>Error: {error.message}</p>
 	}
+
+	// Concaténer tous les posts de chaque page chargée
+	const posts = data.pages.flat()
+
+	if (posts.length === 0) {
+		return <p>No posts to display</p>
+	}
+
+	const firstPost = posts[0]
+	const otherPosts = posts.slice(1)
 
 	return (
-		<>
-			<h2>Liste des posts</h2>
-			{posts.map((post, index) => {
-				const cardClass = getCardClass(index)
-				return (
-					<>
-						<article key={index} className={`postcard dark ${cardClass} `}>
-							<a className='postcard__img_link' href='#'>
-								<img
-									className='postcard__img'
-									src={
-										post.image
-											? `data:image/jpeg;base64,${post.image}`
-											: logoDefault
-									}
-									alt={post.title}
-								/>
-							</a>
-							<div className='postcard__text'>
-								<h1 className={`postcard__title ${cardClass}`}>
-									<a href='#'>{post.title}</a>
-								</h1>
-								<div className='postcard__subtitle small'>
-									<time dateTime='2020-05-25 12:00:00'>
-										<i className='fas fa-calendar-alt mr-2'></i>date à ajouter
-									</time>
-								</div>
-								<div className='postcard__bar'></div>
-								<div className='postcard__preview-txt'>
-									{post.description.length > 50
-										? post.description.substring(0, 50) + '...'
+		<section>
+			<div className='container mx-auto max-w-6xl space-y-6 p-6 sm:space-y-12'>
+				{/* Première carte */}
+				<a
+					rel='noopener noreferrer'
+					href={`detailsPost?idPost=${firstPost._id}`}
+					className='group mx-auto block rounded hover:no-underline focus:no-underline dark:bg-gray-900 lg:grid lg:grid-cols-12'
+				>
+					<img
+						src={firstPost.image || logoDefault}
+						alt={firstPost.title}
+						className='w-full rounded object-cover dark:bg-gray-500 sm:h-96 lg:col-span-7'
+					/>
+					<div className='space-y-2 p-6 lg:col-span-5'>
+						<h4 className='text-2xl font-semibold group-hover:underline group-focus:underline sm:text-4xl'>
+							{firstPost.title}
+						</h4>
+						<span className='text-xs dark:text-gray-400'>{firstPost.date}</span>
+						<p className='text-sm dark:text-gray-400'>
+							{firstPost.description.length > 20
+								? `${firstPost.description.slice(0, 25)}...`
+								: firstPost.description}
+						</p>
+					</div>
+				</a>
+				{/* Autres cartes */}
+				<div className='grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3'>
+					{otherPosts.map(post => (
+						<a
+							key={post._id}
+							rel='noopener noreferrer'
+							href={`detailsPost?idPost=${post._id}`}
+							className='group mx-auto max-w-sm rounded hover:no-underline focus:no-underline dark:bg-gray-900'
+						>
+							<img
+								role='presentation'
+								className='w-full rounded object-cover dark:bg-gray-500'
+								style={{ height: '50%' }}
+								src={post.image || logoDefault}
+							/>
+							<div className='space-y-2 p-6'>
+								<h4 className='text-2xl font-semibold group-hover:underline group-focus:underline'>
+									{post.title}
+								</h4>
+								<span className='text-xs dark:text-gray-400'>{post.date}</span>
+								<p className='text-sm dark:text-gray-400'>
+									{post.description.length > 20
+										? `${post.description.slice(0, 25)}...`
 										: post.description}
-								</div>
-								<ul className='postcard__tagbox'>
-									<li className='tag__item'>
-										<i className='fas fa-tag mr-2'></i>Catégorie
-									</li>
-									<li className='tag__item'>
-										<i className='fas fa-clock mr-2'></i>temps depuis le post
-									</li>
-									<li className={`tag__item play ${cardClass}`}>
-										<a href='#'>
-											<i className='fas fa-play mr-2'></i>Lire (ici un lien vers
-											post)
-										</a>
-									</li>
-								</ul>
+								</p>
 							</div>
-						</article>
-					</>
-				)
-			})}
-		</>
+						</a>
+					))}
+				</div>
+				{hasNextPage ? (
+					<div className='flex justify-center'>
+						<button
+							type='button'
+							onClick={async () => fetchNextPage()}
+							disabled={isFetchingNextPage}
+							className='rounded-md px-6 py-3 text-sm hover:underline dark:bg-gray-900 dark:text-gray-400'
+						>
+							{isFetchingNextPage ? 'Loading more...' : 'Load more posts...'}
+						</button>
+					</div>
+				) : // eslint-disable-next-line unicorn/no-null
+				null}
+			</div>
+		</section>
 	)
 }
 

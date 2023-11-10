@@ -1,14 +1,23 @@
 FROM node:20-alpine
 
+# Set the working directory in the container
 WORKDIR /code
 
-COPY package.json yarn.lock requirements.txt ./
+# Copy package.json and yarn.lock files
+COPY package.json yarn.lock ./
 
+# Install dependencies
 RUN yarn install
-RUN while read p; do yarn add $p; done < requirements.txt
 
-# Bundle app source
-COPY . /code
+# Copy configuration files from the support folder
+# COPY package.json yarn.lock tsconfig.json ./
 
+# Copy the rest of the application source code
+COPY . .
+
+# Expose the port the app runs on
 EXPOSE 8080
-CMD [ "yarn", "run", "dev" ]
+
+# Command to run the application
+CMD ["yarn", "run", "dev"]
+
