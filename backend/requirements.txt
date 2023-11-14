@@ -13,4 +13,5 @@ ipython
 pillow
 motor-types
 pyjwt
+openai
 

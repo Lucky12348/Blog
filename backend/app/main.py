@@ -1,17 +1,24 @@
 from datetime import datetime, timedelta
 from typing import Annotated, Optional
 
-# Token
 import jwt
 from bson import ObjectId
 from fastapi import Depends, FastAPI, Header, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
+from openai import OpenAI
 from pydantic import BaseModel, Field
+
+# Token
+
 
 SECRET_KEY = "your_secret_key_here"  # Changez ceci pour votre propre clé secrète
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 2000
+
+
+openai_client = OpenAI(api_key="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")
+
 
 
 def create_access_token(data: dict):
@@ -248,3 +255,42 @@ async def test_db_connection():
                 f"MongoDB: {str(e)}"
             )
         }
+
+class OpenAIRequest(BaseModel):
+    prompt: str
+conversations = {}
+
+@app.post("/openai")
+async def ask_openai(request: OpenAIRequest, current_user: Annotated[UserFrontend, Depends(get_current_user)]):
+    prompt = request.prompt
+    user_id = str(current_user.id)
+    
+    # Récupérer ou initialiser la session de conversation
+    if user_id not in conversations:
+        conversations[user_id] = []
+    session = conversations[user_id]
+
+    # Ajouter un contexte ou des instructions avant la requête de l'utilisateur
+    context = (
+    "Tu es un chatbot intelligent, ton unique but est d'aider un utilisateur à trouver un titre et une description pour son post. "
+    "Demande toujours si un utilisateur a des idées pour son post. Si oui, il faut qu’il te les donne. "
+    "Si l’utilisateur n’a pas d'idées, propose-lui deux solutions : soit tu lui envois 10 thèmes de post, soit tu lui réalises un post aléatoirement. "
+    "Lorsque tu donnes un titre et une description, tu dois répondre de cette façon : 'Titre : [titre ici] Description : [description ici]'. "
+    "Ne dis rien d’autre au début et à la fin. Tu es familier, utilise le tutoiement, et parle toujours en français."
+)
+    formatted_prompt = f"{context}\n\nUtilisateur: {prompt}\nAI:"
+
+    # Ajouter la requête de l'utilisateur à la session
+    session.append({"role": "user", "content": formatted_prompt})
+
+    try:
+        response = openai_client.chat.completions.create(
+            model="gpt-3.5-turbo-0613",
+            messages=session
+        )
+        # Ajouter la réponse d'OpenAI à la session
+        session.append({"role": "assistant", "content": response.choices[0].message.content})
+
+        return response.choices[0].message.content
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

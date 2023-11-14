@@ -1,7 +1,7 @@
 // App.tsx
 import type { ReactElement } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import AddPost from './components/AddPost'
+import Chatbot from './components/ChatBot'
 import DisplayPosts from './components/DisplayPost'
 import ProtectedPage from './components/ProtectedPage'
 import DetailsPost from './pages/DetailsPost'
@@ -18,7 +18,7 @@ export default function App(): ReactElement {
 					path='/addPost'
 					element={
 						<ProtectedPage>
-							<AddPost />
+							<Chatbot />
 						</ProtectedPage>
 					}
 				/>
