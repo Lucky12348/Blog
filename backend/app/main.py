@@ -272,11 +272,13 @@ async def ask_openai(request: OpenAIRequest, current_user: Annotated[UserFronten
 
     # Ajouter un contexte ou des instructions avant la requête de l'utilisateur
     context = (
+    "Salut! Comment puis-je t'aider aujourd'hui? Tu cherches un titre et une description pour ton post? "
     "Tu es un chatbot intelligent, ton unique but est d'aider un utilisateur à trouver un titre et une description pour son post. "
     "Demande toujours si un utilisateur a des idées pour son post. Si oui, il faut qu’il te les donne. "
     "Si l’utilisateur n’a pas d'idées, propose-lui deux solutions : soit tu lui envois 10 thèmes de post, soit tu lui réalises un post aléatoirement. "
     "Lorsque tu donnes un titre et une description, tu dois répondre de cette façon : 'Titre : [titre ici] Description : [description ici]'. "
     "Ne dis rien d’autre au début et à la fin. Tu es familier, utilise le tutoiement, et parle toujours en français."
+    "realise des reponses courte et precise."
 )
     formatted_prompt = f"{context}\n\nUtilisateur: {prompt}\nAI:"
 
@@ -285,7 +287,7 @@ async def ask_openai(request: OpenAIRequest, current_user: Annotated[UserFronten
 
     try:
         response = openai_client.chat.completions.create(
-            model="gpt-3.5-turbo-0613",
+            model="gpt-4-0314",
             messages=session
         )
         # Ajouter la réponse d'OpenAI à la session

@@ -1,12 +1,23 @@
+/* eslint-disable */
 import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 import AddPost from './AddPost'
 
 function Chatbot() {
-	const [messages, setMessages] = useState([])
+	const [messages, setMessages] = useState([
+		{
+			id: 'welcome',
+			sender: 'ai',
+			content:
+				"Salut! Comment puis-je t'aider aujourd'hui? Tu cherches un titre et une description pour ton post?"
+		}
+	])
 	const [inputMessage, setInputMessage] = useState('')
 	const [isChatVisible, setIsChatVisible] = useState(false)
-	const [isLoading, setIsLoading] = useState(false)
+	const [postDetails, setPostDetails] = useState({ title: '', description: '' })
+	const [showAddPostButton, setShowAddPostButton] = useState(false)
+	const [showAddPostModal, setShowAddPostModal] = useState(false)
+	const [usedPostDetails, setUsedPostDetails] = useState(null)
 
 	const toggleChatVisibility = () => {
 		setIsChatVisible(!isChatVisible)
@@ -14,7 +25,6 @@ function Chatbot() {
 
 	const sendMessageMutation = useMutation(
 		async message => {
-			setIsLoading(true)
 			const response = await fetch('http://localhost:8000/openai', {
 				method: 'POST',
 				headers: {
@@ -34,30 +44,42 @@ function Chatbot() {
 			onSuccess: data => {
 				// Mettre à jour les messages avec la réponse de l'AI
 				setMessages(currentMessages => [
-					...currentMessages,
-					{ sender: 'ai', content: data }
+					...currentMessages.filter(message => message.id !== 'loading'),
+					{ id: `ai-${Date.now()}`, sender: 'ai', content: data }
 				])
-				setIsLoading(false)
+
+				// Détecter si la réponse contient un titre et une description
+				const titleMatch = data.match(/Titre : ([^\n]+)/)
+				const descriptionMatch = data.match(/Description : ([^\n]+)/)
+
+				if (titleMatch && descriptionMatch) {
+					setPostDetails({
+						title: titleMatch[1],
+						description: descriptionMatch[1]
+					})
+					setShowAddPostButton(true) // Afficher le bouton
+				} else {
+					setShowAddPostButton(false) // Masquer le bouton
+				}
 			}
 		}
 	)
 
-	const sendMessage = () => {
+	const sendMessage = async () => {
 		if (!inputMessage) return
 
-		const newMessages = [...messages, { sender: 'user', content: inputMessage }]
+		const newMessages = [
+			...messages,
+			{ id: `user-${Date.now()}`, sender: 'user', content: inputMessage },
+			{ id: 'loading', sender: 'ai', content: '...' }
+		]
 		setMessages(newMessages)
-
-		// Ajouter un message temporaire pendant le chargement
-		if (sendMessageMutation.isLoading) {
-			setMessages([...newMessages, { sender: 'ai', content: '...' }])
-		}
 
 		sendMessageMutation.mutate(inputMessage)
 		setInputMessage('')
 	}
-	if (isLoading && !messages.some(message => message.content === '...')) {
-		setMessages([...messages, { sender: 'ai', content: '...' }])
+	const handleUsePostDetails = () => {
+		setUsedPostDetails(postDetails)
 	}
 
 	return (
@@ -158,6 +180,14 @@ function Chatbot() {
 								</p>
 							</div>
 						))}
+						{showAddPostButton && (
+							<button
+								onClick={handleUsePostDetails}
+								className='m-4 inline-flex h-10 items-center justify-center rounded-md bg-black px-4 py-2 text-sm font-medium text-[#f9fafb] hover:bg-[#111827E6] disabled:pointer-events-none disabled:opacity-50'
+							>
+								Utiliser Titre et Description
+							</button>
+						)}
 					</div>
 
 					{/* Zone de saisie */}
@@ -185,7 +215,7 @@ function Chatbot() {
 					</div>
 				</div>
 			) : null}
-			<AddPost />
+			<AddPost postDetails={usedPostDetails} />
 		</>
 	)
 }
