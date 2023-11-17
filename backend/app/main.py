@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
+from operator import ne
 from typing import Annotated, Optional
+from unittest.mock import Base
 
 import jwt
 from bson import ObjectId
@@ -18,7 +20,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 2000
 
 
 openai_client = OpenAI(api_key="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")
-
 
 
 def create_access_token(data: dict):
@@ -69,11 +70,26 @@ class PostCreationSchema(BaseModel):
     title: str
     description: str
     image: Optional[str]  # Image in base64 format
-    date: datetime = datetime.now().strftime('%d-%m-%Y %H:%M:%S')
-    
+
+
 class PostUpdateSchema(BaseModel):
     title: Optional[str] = Field(None, description="Title of the post")
     description: Optional[str] = Field(None, description="Description of the post")
+
+
+class PostModel(BaseModel):
+    user_id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    title: str
+    description: str
+    image: Optional[str]  # Image in base64 format
+    auteur: str
+    date: str
+
+    #  tkt tkt c'est un copier coller
+    class Config:
+        allow_population_by_field_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str}
 
 
 app = FastAPI()
@@ -104,7 +120,9 @@ async def get_current_user(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials gros connard",
         headers={"WWW-Authenticate": "Bearer"},
-    )
+    ) 
+    if not Authorization:
+        raise credentials_exception
     try:
         token = Authorization.split(" ")[1]
         print(Authorization, token)
@@ -131,57 +149,49 @@ async def add_post(
     post_form: PostCreationSchema,
     current_user: Annotated[UserFrontend, Depends(get_current_user)],
 ):
-    post_data = {
+    post_data = PostModel(**{
         "user_id": current_user.id,
         "title": post_form.title,
         "description": post_form.description,
         "image": post_form.image,
-        "date": post_form.date,
-        "auteur": current_user.name
-    }
+        "auteur": current_user.name,
+        "date": datetime.now().strftime('%d-%m-%Y %H:%M:%S'),
+    })
 
-    result = await post_collection.insert_one(post_data)
+    result = await post_collection.insert_one(post_data.model_dump())
     if result:
         return {"status": "success", "message": "Post added successfully"}
     else:
         raise HTTPException(status_code=500, detail="Failed to add post")
 
 
-
 @app.get("/posts")
-async def get_posts(offset: int = 0, limit: int = 10):
+async def get_posts(offset: int = 0, limit: int = 10) -> list[PostModel]:
     posts_cursor = post_collection.find().skip(offset).limit(limit)
-    posts_list = await posts_cursor.to_list(length=limit)
-    if posts_list:
-        for post in posts_list:
-            for key, value in post.items():
-                if isinstance(value, ObjectId):
-                    post[key] = str(value)
-    return posts_list
+    posts_list_from_db = await posts_cursor.to_list(length=limit)
+    return [PostModel(**post) for post in posts_list_from_db]
 
 
 @app.get("/posts/{id}")
-async def get_post(id: str):
+async def get_post(id: str) -> PostModel:
     post = await post_collection.find_one({"_id": ObjectId(id)})
     if post :
         # Convertir tous les ObjectId en chaînes
-        for key, value in post.items():
-            if isinstance(value, ObjectId):
-                post[key] = str(value)
-        return post
+        return PostModel(**post)
     else :
         raise HTTPException(status_code=404, detail="Failed to find post")
 
 
 @app.patch("/posts/{id}")
 async def update_post(id: str, update_data: PostUpdateSchema):
-    update_query = {"$set": update_data.dict(exclude_unset=True)}
+    update_query = {"$set": update_data.model_dump(exclude_unset=True)}
     result = await post_collection.update_one({"_id": ObjectId(id)}, update_query)
 
     if result.modified_count == 0:
         raise HTTPException(status_code=404, detail="Post not found or no update required")
 
     return {"message": "Post updated successfully"}
+
 
 @app.delete("/posts/{id}")
 async def delete_post(id: str):
@@ -198,11 +208,13 @@ async def signup(user: User):
     existing_user = await users_collection.find_one({"email": user.email})
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    result = await users_collection.insert_one(user.dict())
-    new_user = await users_collection.find_one({"_id": result.inserted_id})
-    new_user["_id"] = str(new_user["_id"])
+    result = await users_collection.insert_one(user.model_dump())
+    new_user_db = await users_collection.find_one({"_id": result.inserted_id})
+    if not new_user_db:
+        raise Exception("Failed to create user")
+    new_user = UserFrontend(**new_user_db)
 
-    token = create_access_token(data={"sub": new_user["email"]})
+    token = create_access_token(data={"sub": new_user.email})
     return {"access_token": token, "token_type": "bearer"}
 
 
@@ -252,15 +264,19 @@ async def test_db_connection():
             )
         }
 
+
 class OpenAIRequest(BaseModel):
     prompt: str
+
+
 conversations = {}
+
 
 @app.post("/openai")
 async def ask_openai(request: OpenAIRequest, current_user: Annotated[UserFrontend, Depends(get_current_user)]):
     prompt = request.prompt
     user_id = str(current_user.id)
-    
+
     # Récupérer ou initialiser la session de conversation
     if user_id not in conversations:
         conversations[user_id] = []
@@ -268,14 +284,15 @@ async def ask_openai(request: OpenAIRequest, current_user: Annotated[UserFronten
 
     # Ajouter un contexte ou des instructions avant la requête de l'utilisateur
     context = (
-    "Salut! Comment puis-je t'aider aujourd'hui? Tu cherches un titre et une description pour ton post? "
-    "Tu es un chatbot intelligent, ton unique but est d'aider un utilisateur à trouver un titre et une description pour son post. "
-    "Demande toujours si un utilisateur a des idées pour son post. Si oui, il faut qu’il te les donne. "
-    "Si l’utilisateur n’a pas d'idées, propose-lui deux solutions : soit tu lui envois 10 thèmes de post, soit tu lui réalises un post aléatoirement. "
-    "Lorsque tu donnes un titre et une description, tu dois répondre de cette façon : 'Titre : [titre ici] Description : [description ici]'. "
-    "Ne dis rien d’autre au début et à la fin. Tu es familier, utilise le tutoiement, et parle toujours en français."
-    "realise des reponses courte et precise."
-)
+        "Salut! Comment puis-je t'aider aujourd'hui? Tu cherches un titre et une description pour ton post? "
+        "Tu es un chatbot intelligent, ton unique but est d'aider un utilisateur à trouver un titre et une description pour son post. "
+        "Demande toujours si un utilisateur a des idées pour son post. Si oui, il faut qu’il te les donne. "
+        "Si l’utilisateur n’a pas d'idées, propose-lui deux solutions : soit tu lui envois 10 thèmes de post, soit tu lui réalises un post aléatoirement. "
+        "Lorsque tu donnes un titre et une description, tu dois répondre de cette façon : 'Titre : [titre ici] Description : [description ici]'. "
+        "Ne dis rien d’autre au début et à la fin. Tu es familier, utilise le tutoiement, et parle toujours en français."
+        "realise des reponses courte et precise."
+    )
+    
     formatted_prompt = f"{context}\n\nUtilisateur: {prompt}\nAI:"
 
     # Ajouter la requête de l'utilisateur à la session
