@@ -4,7 +4,7 @@ import { useState } from 'react'
 import type { ContentEditableEvent } from 'react-simple-wysiwyg'
 import Editor from 'react-simple-wysiwyg'
 import logoDefault from '../../public/images/defaultPost.png'
-import DefaultAlertSupprimer from '../components/AlertSupprimer'
+import DefaultAlertDelete from '../components/AlertDelete'
 import Modal from '../components/Modal'
 
 const queryParameters = new URLSearchParams(window.location.search)
@@ -165,7 +165,7 @@ export default function Front(): React.ReactElement {
 					)}
 				</div>
 				<Modal isOpen={isModalOpen} onClose={onHandleModalClose}>
-					<DefaultAlertSupprimer idPost={postId ?? ''} />
+					<DefaultAlertDelete idPost={postId ?? ''} />
 				</Modal>
 
 				<div

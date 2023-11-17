@@ -2,13 +2,13 @@ import { useMutation } from '@tanstack/react-query'
 import { useRef } from 'react'
 import type { PostDetails } from './ChatBot'
 
-interface UserData {
+interface Post {
 	title: string
 	description: string
 	image?: string
 }
 
-const createPost = async (userData: UserData): Promise<JSON> => {
+const createPost = async (Post: Post): Promise<JSON> => {
 	const token = localStorage.getItem('token')
 	const response = await fetch('http://localhost:8000/posts/', {
 		method: 'POST',
@@ -16,7 +16,7 @@ const createPost = async (userData: UserData): Promise<JSON> => {
 			Authorization: `Bearer ${token}`,
 			'Content-Type': 'application/json'
 		},
-		body: JSON.stringify(userData)
+		body: JSON.stringify(Post)
 	})
 
 	if (!response.ok) {

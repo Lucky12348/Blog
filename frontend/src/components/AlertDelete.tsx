@@ -8,7 +8,7 @@ interface ChildrenProperties {
 	idPost: string
 }
 
-export function AlertSupprimer({ idPost }: ChildrenProperties): JSX.Element {
+export function AlertDelete({ idPost }: ChildrenProperties): JSX.Element {
 	const [message, setMessage] = useState('')
 	const navigate = useNavigate()
 
@@ -100,4 +100,4 @@ export function AlertSupprimer({ idPost }: ChildrenProperties): JSX.Element {
 	)
 }
 
-export default AlertSupprimer
+export default AlertDelete
