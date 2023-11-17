@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useInfiniteQuery } from '@tanstack/react-query'
 import logoDefault from '../../public/images/defaultPost.png'
 
@@ -7,6 +8,7 @@ export interface Post {
 	description: string
 	image: string
 	date: string
+	auteur?: string
 }
 
 const fetchGet = async ({ pageParam: pageParameter = 0 }): Promise<Post[]> => {
@@ -44,7 +46,7 @@ function DisplayPosts() {
 	}
 
 	if (isError) {
-		return <p>Error: {error.message}</p>
+		return <p>Error: {(error as Error).message}</p>
 	}
 
 	// Concaténer tous les posts de chaque page chargée
@@ -73,7 +75,9 @@ function DisplayPosts() {
 					/>
 					<div className='space-y-2 p-6 lg:col-span-5'>
 						<h4 className='text-2xl font-semibold group-hover:underline group-focus:underline sm:text-4xl'>
-							{firstPost.title}
+							{firstPost.title.length > 20
+								? `${firstPost.title.slice(0, 27)}...`
+								: firstPost.title}
 						</h4>
 						<span className='text-xs dark:text-gray-400'>{firstPost.date}</span>
 						<p className='text-sm dark:text-gray-400'>
@@ -81,6 +85,12 @@ function DisplayPosts() {
 								? `${firstPost.description.slice(0, 25)}...`
 								: firstPost.description}
 						</p>
+						<div className='inline-flex space-x-2'>
+							<p className='text-base dark:text-gray-400'>auteur :</p>
+							<p className='text-base dark:text-gray-300'>
+								{firstPost.auteur ? firstPost.auteur : 'anonymus'}
+							</p>
+						</div>
 					</div>
 				</a>
 				{/* Autres cartes */}
@@ -100,7 +110,9 @@ function DisplayPosts() {
 							/>
 							<div className='space-y-2 p-6'>
 								<h4 className='text-2xl font-semibold group-hover:underline group-focus:underline'>
-									{post.title}
+									{post.title.length > 20
+										? `${post.title.slice(0, 23)}...`
+										: post.title}
 								</h4>
 								<span className='text-xs dark:text-gray-400'>{post.date}</span>
 								<p className='text-sm dark:text-gray-400'>
@@ -108,6 +120,7 @@ function DisplayPosts() {
 										? `${post.description.slice(0, 25)}...`
 										: post.description}
 								</p>
+								{post.auteur ? post.auteur : 'anonymus'}
 							</div>
 						</a>
 					))}

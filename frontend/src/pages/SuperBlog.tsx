@@ -31,7 +31,7 @@ function SuperBlog(): JSX.Element | null {
 	return (
 		<>
 			{/* Hello world */}
-			<nav className='border-gray-200 bg-white dark:bg-gray-900'>
+			<nav className='sticky top-0 w-full border-gray-200 bg-white dark:bg-gray-900'>
 				<div className='mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4'>
 					<a className='flex items-center'>
 						<img src={logo} className='mr-3 h-8' alt='Flowbite Logo' />

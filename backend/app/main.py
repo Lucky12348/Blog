@@ -137,19 +137,15 @@ async def add_post(
         "description": post_form.description,
         "image": post_form.image,
         "date": post_form.date,
+        "auteur": current_user.name
     }
-
-    # Check if image is uploaded
-    # if post_form.image and post_form.image.filename:
-    #     image_contents = await post_form.image.read()
-    #     encoded_image = base64.b64encode(image_contents).decode("utf-8")
-    #     post_data["image"] = encoded_image
 
     result = await post_collection.insert_one(post_data)
     if result:
         return {"status": "success", "message": "Post added successfully"}
     else:
         raise HTTPException(status_code=500, detail="Failed to add post")
+
 
 
 @app.get("/posts")

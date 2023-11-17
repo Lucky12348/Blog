@@ -15,6 +15,7 @@ export interface Post {
 	description: string
 	image: string
 	date: string
+	auteur?: string
 }
 
 const fetchPost = async (): Promise<Post> => {
@@ -192,15 +193,10 @@ export default function Front(): React.ReactElement {
 							)}
 						</h2>
 						<div className='mt-3 flex'>
-							<img
-								src='https://randomuser.me/api/portraits/men/97.jpg'
-								className='mr-2 h-10 w-10 rounded-full object-cover'
-							/>
 							<div>
 								<p className='text-sm font-semibold text-gray-200'>
-									{' '}
-									Mike Sullivan{' '}
-								</p>
+									{post.auteur ? post.auteur : `anonymous`}
+								</p>{' '}
 								<p className='text-xs font-semibold text-gray-400'>
 									{' '}
 									{post.date}{' '}

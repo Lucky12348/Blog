@@ -16,7 +16,6 @@ function Chatbot() {
 	const [isChatVisible, setIsChatVisible] = useState(false)
 	const [postDetails, setPostDetails] = useState({ title: '', description: '' })
 	const [showAddPostButton, setShowAddPostButton] = useState(false)
-	const [showAddPostModal, setShowAddPostModal] = useState(false)
 	const [usedPostDetails, setUsedPostDetails] = useState(null)
 
 	const toggleChatVisibility = () => {

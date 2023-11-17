@@ -70,56 +70,55 @@ function AddPost({ postDetails }): JSX.Element {
 
 	return (
 		<div className='min-h-screen bg-indigo-50 pt-6 md:px-20'>
-			<div className='mx-auto max-w-2xl rounded-md bg-white px-6 py-10'>
-				<h1 className='mb-10 text-center text-2xl font-bold text-gray-500'>
+			<div className='mx-auto max-w-2xl rounded-md bg-white px-6 py-10 shadow-lg'>
+				<h1 className='mb-10 text-center text-3xl font-bold text-gray-700'>
 					ADD POST
 				</h1>
-				<form onSubmit={onHandlePosts} className='space-y-4'>
+				<form onSubmit={onHandlePosts} className='space-y-6'>
 					<div>
-						<label htmlFor='title' className='text-lx font-serif'>
+						<label htmlFor='title' className='font-serif text-lg'>
 							Title:
 						</label>
 						<input
 							type='text'
-							placeholder='title'
+							placeholder='Enter title here'
 							id='title'
-							className='text-md ml-2 rounded-md border-2 px-2 py-1 outline-none'
+							className='text-md mt-1 w-full rounded-md border-2 px-4 py-2 outline-none transition duration-200 ease-in-out focus:border-indigo-300'
 							ref={titleInputReference}
 							required
 						/>
 					</div>
 					<div>
-						<label
-							htmlFor='description'
-							className='mb-2 block font-serif text-lg'
-						>
+						<label htmlFor='description' className='block font-serif text-lg'>
 							Description:
 						</label>
 						<textarea
 							id='description'
 							cols={30}
 							rows={10}
-							placeholder='write here..'
-							className='w-full rounded-md bg-indigo-50 p-4 font-serif text-gray-600 outline-none'
+							placeholder='Write your post content here...'
+							className='w-full rounded-md bg-indigo-100 p-4 font-serif text-gray-700 outline-none transition duration-200 ease-in-out focus:bg-white'
 							ref={descriptionInputReference}
 							required
 						/>
 					</div>
 					<div>
 						<label
-							className='mb-2 block text-sm font-medium text-gray-900 dark:text-white'
 							htmlFor='file_input'
+							className='block text-sm font-medium text-gray-900'
 						>
 							Upload file
 						</label>
 						<input
-							className='block w-full cursor-pointer rounded-lg border border-gray-300 bg-gray-50 text-sm text-gray-900 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-gray-400 dark:placeholder-gray-400'
+							className='block w-full rounded-lg border border-gray-200 text-sm shadow-sm file:me-4 file:border-0 file:bg-gray-100 file:bg-gray-50 file:px-4 file:py-3 hover:border-indigo-300 focus:z-10 focus:border-blue-500 focus:outline-none focus:ring-blue-500
+    disabled:pointer-events-none disabled:opacity-50
+     dark:focus:ring-gray-600'
 							id='file_input'
 							type='file'
 							ref={imageFileInputReference}
 						/>
 					</div>
-					<button className='mx-auto block rounded-md bg-indigo-600 px-6 py-2 text-lg font-semibold text-indigo-100'>
+					<button className='mx-auto block rounded-md bg-indigo-700 px-6 py-2 text-lg font-semibold text-white transition duration-200 ease-in-out hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-opacity-50'>
 						ADD POST
 					</button>
 				</form>
