@@ -1,7 +1,5 @@
 from datetime import datetime, timedelta
-from operator import ne
 from typing import Annotated, Optional
-from unittest.mock import Base
 
 import jwt
 from bson import ObjectId
@@ -120,7 +118,7 @@ async def get_current_user(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials gros connard",
         headers={"WWW-Authenticate": "Bearer"},
-    ) 
+    )
     if not Authorization:
         raise credentials_exception
     try:
@@ -158,7 +156,7 @@ async def add_post(
         "date": datetime.now().strftime('%d-%m-%Y %H:%M:%S'),
     })
 
-    result = await post_collection.insert_one(post_data.model_dump())
+    result = await post_collection.insert_one(post_data.dict())
     if result:
         return {"status": "success", "message": "Post added successfully"}
     else:
@@ -184,7 +182,7 @@ async def get_post(id: str) -> PostModel:
 
 @app.patch("/posts/{id}")
 async def update_post(id: str, update_data: PostUpdateSchema):
-    update_query = {"$set": update_data.model_dump(exclude_unset=True)}
+    update_query = {"$set": update_data.dict(exclude_unset=True)}
     result = await post_collection.update_one({"_id": ObjectId(id)}, update_query)
 
     if result.modified_count == 0:
@@ -208,7 +206,7 @@ async def signup(user: User):
     existing_user = await users_collection.find_one({"email": user.email})
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
-    result = await users_collection.insert_one(user.model_dump())
+    result = await users_collection.insert_one(user.dict())
     new_user_db = await users_collection.find_one({"_id": result.inserted_id})
     if not new_user_db:
         raise Exception("Failed to create user")
@@ -292,7 +290,7 @@ async def ask_openai(request: OpenAIRequest, current_user: Annotated[UserFronten
         "Ne dis rien d’autre au début et à la fin. Tu es familier, utilise le tutoiement, et parle toujours en français."
         "realise des reponses courte et precise."
     )
-    
+
     formatted_prompt = f"{context}\n\nUtilisateur: {prompt}\nAI:"
 
     # Ajouter la requête de l'utilisateur à la session

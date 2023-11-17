@@ -1,9 +1,8 @@
+import { useState } from 'react'
 import { scaleRotate as Menu } from 'react-burger-menu'
 import '../../public/css/menu.css'
-// eslint-disable-next-line import/extensions
-import { useState } from 'react'
 import logo from '../../public/images/logo.png'
-import '../../public/javascripts/menu.js'
+import '../../public/javascripts/menu'
 import DisplayPosts from '../components/DisplayPost'
 import FormSignLog from '../components/FormSignLog'
 import Modal from '../components/Modal'
@@ -26,45 +25,47 @@ function SuperBlog(): JSX.Element | null {
 		return <div>Error loading user info</div>
 	}
 
-	// Vérifie explicitement que userInfo est défini
-
+	const onHandleModalOpen = (): void => {
+		setIsModalOpen(true)
+	}
+	const onHandleModalClose = (): void => {
+		setIsModalOpen(false)
+	}
 	return (
 		<>
 			{/* Hello world */}
 			<nav className='sticky top-0 w-full border-gray-200 bg-white dark:bg-gray-900'>
 				<div className='mx-auto flex max-w-screen-xl flex-wrap items-center justify-between p-4'>
-					<a className='flex items-center'>
+					<div className='flex items-center'>
 						<img src={logo} className='mr-3 h-8' alt='Flowbite Logo' />
 						<span className='self-center whitespace-nowrap text-2xl font-semibold dark:text-white'>
 							SuperBlog
 						</span>
-					</a>
+					</div>
 					<div className='flex items-center'>
 						{userInfo ? (
 							<div>
-								<a
+								<button
+									type='button'
 									className='mr-3 rounded-lg bg-red-700 px-4 py-2 text-center text-sm font-medium text-white hover:bg-red-800 focus:outline-none focus:ring-4 focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800 md:mr-0'
-									href='/'
 									onClick={onHandleClick}
 								>
 									<i className='fas fa-power-off' />
 									<span> Disconnect</span>
-								</a>
+								</button>
 							</div>
 						) : (
-							<a
-								href='#'
+							<button
+								type='button'
 								className='mr-3 rounded-lg bg-blue-700 px-4 py-2 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 md:mr-0'
-								onClick={() => setIsModalOpen(true)}
+								onClick={onHandleModalOpen}
 							>
 								Login/Signup
-							</a>
+							</button>
 						)}
-						<Modal
-							isOpen={isModalOpen}
-							onClose={() => setIsModalOpen(false)}
-							children={<FormSignLog />}
-						/>
+						<Modal isOpen={isModalOpen} onClose={onHandleModalClose}>
+							<FormSignLog />
+						</Modal>
 					</div>
 				</div>
 			</nav>
@@ -93,7 +94,7 @@ function SuperBlog(): JSX.Element | null {
 					<h1 className='mb-4 text-3xl font-extrabold text-gray-900 dark:text-gray-500 md:text-5xl lg:text-6xl'>
 						Bienvenue{' '}
 						<span className='bg-gradient-to-r from-sky-400 to-emerald-600 bg-clip-text text-transparent'>
-							{userInfo.name} !
+							{userInfo?.name ? `${userInfo.name} !` : 'à tous !'}
 						</span>
 					</h1>
 					<p className='text-lg font-normal text-gray-500 dark:text-gray-400 lg:text-xl'>

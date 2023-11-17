@@ -1,9 +1,28 @@
-/* eslint-disable */
+/* eslint-disable unicorn/no-null */
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 import AddPost from './AddPost'
 
-function Chatbot() {
+export interface PostDetails {
+	title: string
+	description: string
+}
+
+function getMessageMatch(data: string): PostDetails | null {
+	const titleMatch = data.match(/Titre : ([^\n]+)/)
+	const descriptionMatch = data.match(/Description : ([^\n]+)/)
+
+	if (titleMatch && descriptionMatch) {
+		return {
+			title: titleMatch[1],
+			description: descriptionMatch[1]
+		}
+	}
+	return null
+}
+
+function Chatbot(): JSX.Element {
 	const [messages, setMessages] = useState([
 		{
 			id: 'welcome',
@@ -14,16 +33,21 @@ function Chatbot() {
 	])
 	const [inputMessage, setInputMessage] = useState('')
 	const [isChatVisible, setIsChatVisible] = useState(false)
-	const [postDetails, setPostDetails] = useState({ title: '', description: '' })
-	const [showAddPostButton, setShowAddPostButton] = useState(false)
-	const [usedPostDetails, setUsedPostDetails] = useState(null)
+	const [postDetails, setPostDetails] = useState<PostDetails>({
+		title: '',
+		description: ''
+	})
 
-	const toggleChatVisibility = () => {
+	const lastMessage = messages.at(-1)
+	const showAddPostButton =
+		lastMessage && !!getMessageMatch(lastMessage.content)
+
+	const onToggleChatVisibility = (): void => {
 		setIsChatVisible(!isChatVisible)
 	}
 
 	const sendMessageMutation = useMutation(
-		async message => {
+		async (message: string) => {
 			const response = await fetch('http://localhost:8000/openai', {
 				method: 'POST',
 				headers: {
@@ -37,54 +61,62 @@ function Chatbot() {
 				throw new Error("Erreur lors de la communication avec l'assistant AI")
 			}
 
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-return
 			return response.json()
 		},
 		{
-			onSuccess: data => {
+			onSuccess: (data: string) => {
 				// Mettre à jour les messages avec la réponse de l'AI
 				setMessages(currentMessages => [
 					...currentMessages.filter(message => message.id !== 'loading'),
 					{ id: `ai-${Date.now()}`, sender: 'ai', content: data }
 				])
-
-				// Détecter si la réponse contient un titre et une description
-				const titleMatch = data.match(/Titre : ([^\n]+)/)
-				const descriptionMatch = data.match(/Description : ([^\n]+)/)
-
-				if (titleMatch && descriptionMatch) {
-					setPostDetails({
-						title: titleMatch[1],
-						description: descriptionMatch[1]
-					})
-					setShowAddPostButton(true) // Afficher le bouton
-				} else {
-					setShowAddPostButton(false) // Masquer le bouton
-				}
 			}
 		}
 	)
 
-	const sendMessage = async () => {
+	const sendMessage = async (): Promise<void> => {
 		if (!inputMessage) return
 
-		const newMessages = [
+		const updatedMessages = [
 			...messages,
 			{ id: `user-${Date.now()}`, sender: 'user', content: inputMessage },
 			{ id: 'loading', sender: 'ai', content: '...' }
 		]
-		setMessages(newMessages)
+		setMessages(updatedMessages)
 
 		sendMessageMutation.mutate(inputMessage)
 		setInputMessage('')
 	}
-	const handleUsePostDetails = () => {
-		setUsedPostDetails(postDetails)
+
+	const onHandleUsePostDetails = (): void => {
+		if (lastMessage) {
+			const details = getMessageMatch(lastMessage.content) // Renommer 'postDetails' en 'details'
+			if (!details) return
+			setPostDetails(details)
+		}
+	}
+
+	async function onHandleSubmit(
+		event: React.FormEvent<HTMLFormElement>
+	): Promise<void> {
+		event.preventDefault()
+
+		try {
+			await sendMessage()
+		} catch {
+			throw new Error("Erreur lors de l'envoi du message")
+			// Gérer l'erreur ici (par exemple, afficher un message d'erreur à l'utilisateur)
+		}
+	}
+	const onHandleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+		setInputMessage(event.target.value)
 	}
 
 	return (
 		<>
 			<button
-				onClick={toggleChatVisibility}
+				onClick={onToggleChatVisibility}
 				className='fixed bottom-4 right-4 m-0 inline-flex h-16 w-16 cursor-pointer items-center justify-center rounded-full border border-gray-200 bg-black bg-none p-0 text-sm font-medium normal-case leading-5 hover:bg-gray-700 hover:text-gray-900 disabled:pointer-events-none disabled:opacity-50'
 				type='button'
 				aria-haspopup='dialog'
@@ -127,9 +159,9 @@ function Chatbot() {
 					</div>
 					<div className='h-[474px] overflow-auto pr-4'>
 						{/* Affichage des messages */}
-						{messages.map((message, index) => (
+						{messages.map(message => (
 							<div
-								key={index}
+								key={message.id}
 								className={`my-4 flex flex-1 gap-3 text-sm text-gray-600 ${
 									message.sender === 'ai' ? 'justify-start' : 'justify-end'
 								}`}
@@ -179,30 +211,28 @@ function Chatbot() {
 								</p>
 							</div>
 						))}
-						{showAddPostButton && (
+						{showAddPostButton ? (
 							<button
-								onClick={handleUsePostDetails}
+								type='button'
+								onClick={onHandleUsePostDetails}
 								className='m-4 inline-flex h-10 items-center justify-center rounded-md bg-black px-4 py-2 text-sm font-medium text-[#f9fafb] hover:bg-[#111827E6] disabled:pointer-events-none disabled:opacity-50'
 							>
 								Utiliser Titre et Description
 							</button>
-						)}
+						) : null}
 					</div>
 
 					{/* Zone de saisie */}
 					<div className='flex items-center pt-0'>
 						<form
 							className='flex w-full items-center justify-center space-x-2'
-							onSubmit={e => {
-								e.preventDefault()
-								sendMessage()
-							}}
+							onSubmit={onHandleSubmit}
 						>
 							<input
 								className='flex h-10 w-full rounded-md border border-[#e5e7eb] px-3 py-2 text-sm text-[#030712] placeholder-[#6b7280] focus:outline-none focus:ring-2 focus:ring-[#9ca3af] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
 								placeholder='Type your message'
 								value={inputMessage}
-								onChange={e => setInputMessage(e.target.value)}
+								onChange={onHandleChange}
 							/>
 							<button
 								type='submit'
@@ -214,7 +244,7 @@ function Chatbot() {
 					</div>
 				</div>
 			) : null}
-			<AddPost postDetails={usedPostDetails} />
+			<AddPost postDetails={postDetails} setPostDetails={setPostDetails} />
 		</>
 	)
 }

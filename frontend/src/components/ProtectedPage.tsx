@@ -5,12 +5,12 @@ export default function ProtectedPage({
 	children
 }: {
 	children: React.ReactNode
-}) {
+}): React.ReactNode {
 	const token = localStorage.getItem('token')
 
 	if (!token) {
 		return <Navigate to='/' />
 	}
 
-	return <>{children}</>
+	return children
 }

@@ -1,7 +1,14 @@
-/* eslint-disable */
+/* eslint-disable unicorn/no-null */
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { AnimatePresence, motion } from 'framer-motion'
 
-function Modal({ isOpen, onClose, children }) {
+interface ModalProperties {
+	isOpen: boolean
+	onClose: () => void
+	children: React.ReactNode
+}
+
+function Modal({ isOpen, onClose, children }: ModalProperties): JSX.Element {
 	return (
 		<AnimatePresence mode='wait'>
 			{isOpen ? (

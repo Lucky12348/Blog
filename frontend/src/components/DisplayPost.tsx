@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* eslint-disable @typescript-eslint/no-magic-numbers */
 import { useInfiniteQuery } from '@tanstack/react-query'
 import logoDefault from '../../public/images/defaultPost.png'
 
@@ -22,7 +22,7 @@ const fetchGet = async ({ pageParam: pageParameter = 0 }): Promise<Post[]> => {
 	return response.json() as Promise<Post[]>
 }
 
-function DisplayPosts() {
+function DisplayPosts(): JSX.Element {
 	const {
 		data,
 		isError,
@@ -37,6 +37,7 @@ function DisplayPosts() {
 			if (lastPage.length === 0) return
 			// Calculez le nouvel offset en fonction du nombre total de posts chargés
 			const nextPageOffset = allPages.flat().length
+			// eslint-disable-next-line consistent-return
 			return nextPageOffset
 		}
 	})
@@ -56,8 +57,10 @@ function DisplayPosts() {
 		return <p>No posts to display</p>
 	}
 
-	const firstPost = posts[0]
-	const otherPosts = posts.slice(1)
+	const [firstPost, ...otherPosts] = posts
+	const onHandleClick = async (): Promise<void> => {
+		await fetchNextPage()
+	}
 
 	return (
 		<section>
@@ -88,7 +91,7 @@ function DisplayPosts() {
 						<div className='inline-flex space-x-2'>
 							<p className='text-base dark:text-gray-400'>auteur :</p>
 							<p className='text-base dark:text-gray-300'>
-								{firstPost.auteur ? firstPost.auteur : 'anonymus'}
+								{firstPost.auteur ?? 'anonymus'}
 							</p>
 						</div>
 					</div>
@@ -103,6 +106,7 @@ function DisplayPosts() {
 							className='group mx-auto max-w-sm rounded hover:no-underline focus:no-underline dark:bg-gray-900'
 						>
 							<img
+								alt=''
 								role='presentation'
 								className='w-full rounded object-cover dark:bg-gray-500'
 								style={{ height: '50%' }}
@@ -120,7 +124,7 @@ function DisplayPosts() {
 										? `${post.description.slice(0, 25)}...`
 										: post.description}
 								</p>
-								{post.auteur ? post.auteur : 'anonymus'}
+								{post.auteur ?? 'anonymus'}
 							</div>
 						</a>
 					))}
@@ -129,7 +133,7 @@ function DisplayPosts() {
 					<div className='flex justify-center'>
 						<button
 							type='button'
-							onClick={async () => fetchNextPage()}
+							onClick={onHandleClick}
 							disabled={isFetchingNextPage}
 							className='rounded-md px-6 py-3 text-sm hover:underline dark:bg-gray-900 dark:text-gray-400'
 						>

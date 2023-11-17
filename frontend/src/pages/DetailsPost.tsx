@@ -1,9 +1,10 @@
-/* eslint-disable */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import React, { useState } from 'react'
+import type React from 'react'
+import { useState } from 'react'
+import type { ContentEditableEvent } from 'react-simple-wysiwyg'
 import Editor from 'react-simple-wysiwyg'
 import logoDefault from '../../public/images/defaultPost.png'
-import AlertSupprimer from '../components/AlertSupprimer'
+import DefaultAlertSupprimer from '../components/AlertSupprimer'
 import Modal from '../components/Modal'
 
 const queryParameters = new URLSearchParams(window.location.search)
@@ -24,13 +25,13 @@ const fetchPost = async (): Promise<Post> => {
 	if (!response.ok) {
 		throw new Error('Network response was not ok')
 	}
-	return response.json()
+	return (await response.json()) as Post
 }
 
 const updatePostData = async (updateData: {
 	title?: string
 	description?: string
-}) => {
+}): Promise<Post> => {
 	const response = await fetch(`http://localhost:8000/posts/${postId}`, {
 		method: 'PATCH',
 		headers: {
@@ -43,7 +44,7 @@ const updatePostData = async (updateData: {
 		throw new Error('Network response was not ok')
 	}
 
-	return response.json()
+	return (await response.json()) as Post
 }
 
 export default function Front(): React.ReactElement {
@@ -64,54 +65,62 @@ export default function Front(): React.ReactElement {
 
 	const { mutate: updatePost } = useMutation(updatePostData, {
 		onSuccess: () => {
-			queryClient.invalidateQueries(['post', postId])
+			void queryClient.invalidateQueries(['post', postId])
 			setIsEditing(false)
 			setIsTitleEditing(false)
 		}
 	})
 
-	const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setTitle(e.target.value)
+	const onHandleTitleChange = (
+		event_: React.ChangeEvent<HTMLInputElement>
+	): void => {
+		setTitle(event_.target.value)
 	}
 
-	const handleDescriptionChange = (
-		e: React.ChangeEvent<HTMLTextAreaElement>
-	) => {
-		setHtml(e.target.value)
+	const onHandleDescriptionChange = (event_: ContentEditableEvent): void => {
+		setHtml(event_.target.value)
 	}
 
-	const handleSaveClick = () => {
+	const onHandleSaveClick = (): void => {
 		updatePost({ title, description: html })
 	}
 
-	const handleTitleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-		if (e.key === 'Enter') {
+	const onHandleTitleKeyDown = (event_: React.KeyboardEvent): void => {
+		if (event_.key === 'Enter') {
 			updatePost({ title })
-			e.preventDefault()
-		} else if (e.key === 'Escape') {
+			event_.preventDefault()
+		} else if (event_.key === 'Escape') {
 			setIsTitleEditing(false)
 		}
 	}
 
-	const handleEditClick = () => {
+	const onHandleEditClick = (): void => {
 		setIsEditing(!isEditing)
 		setIsTitleEditing(false)
-		setTitle(post?.title || '')
-		setHtml(post?.description || '')
+		setTitle(post?.title ?? '')
+		setHtml(post?.description ?? '')
 	}
 
-	const handleTitleDoubleClick = () => {
+	const onHandleTitleDoubleClick = (): void => {
 		setIsTitleEditing(true)
 		setIsEditing(true)
 	}
 
-	const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-		if (e.ctrlKey && e.key === 's') {
+	const onHandleKeyDown = (
+		event_: React.KeyboardEvent<HTMLButtonElement>
+	): void => {
+		if (event_.ctrlKey && event_.key === 's') {
 			updatePost({ description: html })
-			e.preventDefault()
-		} else if (e.key === 'Escape') {
+			event_.preventDefault()
+		} else if (event_.key === 'Escape') {
 			setIsEditing(false)
 		}
+	}
+	const onHandleModalOpen = (): void => {
+		setIsModalOpen(true)
+	}
+	const onHandleModalClose = (): void => {
+		setIsModalOpen(false)
 	}
 
 	if (isLoading) {
@@ -119,7 +128,11 @@ export default function Front(): React.ReactElement {
 	}
 
 	if (isError) {
-		return <p>Error: {error.message}</p>
+		let errorMessage = 'An error occurred'
+		if (typeof error === 'object' && error !== null && 'message' in error) {
+			errorMessage = error.message as string
+		}
+		return <p>Error: {errorMessage}</p>
 	}
 
 	return (
@@ -128,7 +141,7 @@ export default function Front(): React.ReactElement {
 				<div className='flex items-center'>
 					<button
 						type='button'
-						onClick={handleEditClick}
+						onClick={onHandleEditClick}
 						className='mb-2 mr-2 rounded-lg bg-gradient-to-br from-green-400 to-blue-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:outline-none focus:ring-4 focus:ring-green-200 dark:focus:ring-green-800'
 					>
 						{isEditing || isTitleEditing ? 'Annuler' : 'Éditer'}
@@ -136,7 +149,7 @@ export default function Front(): React.ReactElement {
 					{isEditing ? (
 						<button
 							type='button'
-							onClick={handleSaveClick}
+							onClick={onHandleSaveClick}
 							className='mb-2 rounded-lg bg-gradient-to-br from-blue-400 to-purple-600 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:outline-none focus:ring-4 focus:ring-blue-200 dark:focus:ring-blue-800'
 						>
 							Enregistrer
@@ -144,18 +157,16 @@ export default function Front(): React.ReactElement {
 					) : (
 						<button
 							type='button'
-							onClick={() => setIsModalOpen(true)}
+							onClick={onHandleModalOpen}
 							className='mb-2 mr-2 rounded-lg bg-gradient-to-br from-pink-500 to-orange-400 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-gradient-to-bl focus:outline-none focus:ring-4 focus:ring-pink-200 dark:focus:ring-pink-800'
 						>
 							Supprimer
 						</button>
 					)}
 				</div>
-				<Modal
-					isOpen={isModalOpen}
-					onClose={() => setIsModalOpen(false)}
-					children={<AlertSupprimer idPost={postId} />}
-				/>
+				<Modal isOpen={isModalOpen} onClose={onHandleModalClose}>
+					<DefaultAlertSupprimer idPost={postId ?? ''} />
+				</Modal>
 
 				<div
 					className='relative mx-auto mb-4 w-full max-w-screen-md md:mb-0'
@@ -169,7 +180,8 @@ export default function Front(): React.ReactElement {
 						}}
 					/>
 					<img
-						src={post.image ? post.image : logoDefault}
+						src={post.image || logoDefault}
+						alt={post.image ? "Image de l'article" : 'Logo par défaut'}
 						className='absolute left-0 top-0 z-0 h-full w-full object-cover'
 					/>
 					<div className='absolute bottom-0 left-0 z-20 p-4'>
@@ -178,15 +190,14 @@ export default function Front(): React.ReactElement {
 								<input
 									type='text'
 									value={title}
-									onChange={handleTitleChange}
-									onKeyDown={handleTitleKeyDown}
+									onChange={onHandleTitleChange}
+									onKeyDown={onHandleTitleKeyDown}
 									className='border-0 bg-transparent text-4xl font-semibold leading-tight text-gray-100'
-									autoFocus
 								/>
 							) : (
 								<span
 									className='cursor-pointer text-4xl font-semibold leading-tight text-gray-100'
-									onDoubleClick={handleTitleDoubleClick}
+									onDoubleClick={onHandleTitleDoubleClick}
 								>
 									{post.title}
 								</span>
@@ -195,7 +206,7 @@ export default function Front(): React.ReactElement {
 						<div className='mt-3 flex'>
 							<div>
 								<p className='text-sm font-semibold text-gray-200'>
-									{post.auteur ? post.auteur : `anonymous`}
+									{post.auteur ?? 'anonymous'}
 								</p>{' '}
 								<p className='text-xs font-semibold text-gray-400'>
 									{' '}
@@ -211,16 +222,17 @@ export default function Front(): React.ReactElement {
 					{isEditing ? (
 						<Editor
 							value={html}
-							onChange={handleDescriptionChange}
-							onKeyDown={handleKeyDown}
+							onChange={onHandleDescriptionChange}
+							onKeyDown={onHandleKeyDown}
 						/>
 					) : (
-						<div
-							dangerouslySetInnerHTML={{ __html: post.description || '' }}
-							onDoubleClick={handleEditClick}
-							tabIndex={0} // Rend le div focusable
-							onKeyDown={isEditing ? handleKeyDown : undefined}
-						/>
+						<button
+							type='button'
+							onDoubleClick={onHandleEditClick}
+							onKeyDown={onHandleKeyDown}
+						>
+							{post.description || ''}
+						</button>
 					)}
 				</div>
 			</main>

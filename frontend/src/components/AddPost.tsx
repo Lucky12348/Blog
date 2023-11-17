@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
+import type { PostDetails } from './ChatBot'
 
 interface UserData {
 	title: string
@@ -26,17 +27,20 @@ const createPost = async (userData: UserData): Promise<JSON> => {
 	return response.json()
 }
 
-function AddPost({ postDetails }): JSX.Element {
-	const titleInputReference = useRef<HTMLInputElement>(null)
-	const descriptionInputReference = useRef<HTMLTextAreaElement>(null)
+function AddPost({
+	postDetails,
+	setPostDetails
+}: {
+	postDetails: PostDetails
+	setPostDetails: React.Dispatch<React.SetStateAction<PostDetails>>
+}): JSX.Element {
 	const imageFileInputReference = useRef<HTMLInputElement>(null)
 	const signupMutation = useMutation(createPost)
 
 	const onHandlePosts = (event: React.FormEvent<HTMLFormElement>): void => {
 		event.preventDefault()
 		const postData = {
-			title: titleInputReference.current?.value as string,
-			description: descriptionInputReference.current?.value as string
+			...postDetails
 		}
 		const file = imageFileInputReference.current?.files?.[0]
 		if (file) {
@@ -50,23 +54,35 @@ function AddPost({ postDetails }): JSX.Element {
 				})
 			})
 			reader.addEventListener('error', () => {
-				console.error('Erreur lors de la lecture du fichier')
+				throw new Error('Erreur lors de la lecture du fichier')
 			})
 		} else {
 			// Si aucune image n'est fournie, envoyez les autres données
 			signupMutation.mutate(postData)
 		}
 	}
-	useEffect(() => {
-		if (postDetails) {
-			if (titleInputReference.current && postDetails.title) {
-				titleInputReference.current.value = postDetails.title
-			}
-			if (descriptionInputReference.current && postDetails.description) {
-				descriptionInputReference.current.value = postDetails.description
-			}
-		}
-	}, [postDetails])
+
+	const onChangeTitle = (event: React.ChangeEvent<HTMLInputElement>): void => {
+		setPostDetails(
+			(previousValue: PostDetails) =>
+				({
+					...previousValue,
+					title: event.target.value
+				}) as PostDetails
+		)
+	}
+
+	const onChangeDescription = (
+		event: React.ChangeEvent<HTMLTextAreaElement>
+	): void => {
+		setPostDetails(
+			(previousValue: PostDetails) =>
+				({
+					...previousValue,
+					description: event.target.value
+				}) as PostDetails
+		)
+	}
 
 	return (
 		<div className='min-h-screen bg-indigo-50 pt-6 md:px-20'>
@@ -84,8 +100,9 @@ function AddPost({ postDetails }): JSX.Element {
 							placeholder='Enter title here'
 							id='title'
 							className='text-md mt-1 w-full rounded-md border-2 px-4 py-2 outline-none transition duration-200 ease-in-out focus:border-indigo-300'
-							ref={titleInputReference}
 							required
+							value={postDetails.title}
+							onChange={onChangeTitle}
 						/>
 					</div>
 					<div>
@@ -98,8 +115,9 @@ function AddPost({ postDetails }): JSX.Element {
 							rows={10}
 							placeholder='Write your post content here...'
 							className='w-full rounded-md bg-indigo-100 p-4 font-serif text-gray-700 outline-none transition duration-200 ease-in-out focus:bg-white'
-							ref={descriptionInputReference}
 							required
+							value={postDetails.description}
+							onChange={onChangeDescription}
 						/>
 					</div>
 					<div>
@@ -110,7 +128,7 @@ function AddPost({ postDetails }): JSX.Element {
 							Upload file
 						</label>
 						<input
-							className='block w-full rounded-lg border border-gray-200 text-sm shadow-sm file:me-4 file:border-0 file:bg-gray-100 file:bg-gray-50 file:px-4 file:py-3 hover:border-indigo-300 focus:z-10 focus:border-blue-500 focus:outline-none focus:ring-blue-500
+							className='block w-full rounded-lg border border-gray-200 text-sm shadow-sm file:me-4 file:border-0 file:bg-gray-100 file:px-4 file:py-3 hover:border-indigo-300 focus:z-10 focus:border-blue-500 focus:outline-none focus:ring-blue-500
     disabled:pointer-events-none disabled:opacity-50
      dark:focus:ring-gray-600'
 							id='file_input'
@@ -118,7 +136,10 @@ function AddPost({ postDetails }): JSX.Element {
 							ref={imageFileInputReference}
 						/>
 					</div>
-					<button className='mx-auto block rounded-md bg-indigo-700 px-6 py-2 text-lg font-semibold text-white transition duration-200 ease-in-out hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-opacity-50'>
+					<button
+						type='submit'
+						className='mx-auto block rounded-md bg-indigo-700 px-6 py-2 text-lg font-semibold text-white transition duration-200 ease-in-out hover:bg-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-opacity-50'
+					>
 						ADD POST
 					</button>
 				</form>

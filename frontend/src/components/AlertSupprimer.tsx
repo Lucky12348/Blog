@@ -1,5 +1,6 @@
-/* eslint-disable */
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+/* eslint-disable unicorn/no-null */
+/* eslint-disable @typescript-eslint/no-magic-numbers */
+import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -10,7 +11,6 @@ interface ChildrenProperties {
 export function AlertSupprimer({ idPost }: ChildrenProperties): JSX.Element {
 	const [message, setMessage] = useState('')
 	const navigate = useNavigate()
-	const queryClient = useQueryClient()
 
 	const deleteMutation = useMutation(
 		async () => {
@@ -29,13 +29,13 @@ export function AlertSupprimer({ idPost }: ChildrenProperties): JSX.Element {
 				setMessage('Post supprimé avec succès. Redirection...')
 				setTimeout(() => navigate('/'), 2000)
 			},
-			onError: error => {
+			onError: () => {
 				setMessage('Erreur lors de la suppression du post')
 			}
 		}
 	)
 
-	const handleDelete = () => {
+	const onHandleDelete = (): void => {
 		deleteMutation.mutate()
 	}
 
@@ -49,7 +49,8 @@ export function AlertSupprimer({ idPost }: ChildrenProperties): JSX.Element {
 				</span>
 			</h1>
 			<button
-				onClick={handleDelete}
+				type='button'
+				onClick={onHandleDelete}
 				className='inline-flex items-center rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700'
 			>
 				<svg

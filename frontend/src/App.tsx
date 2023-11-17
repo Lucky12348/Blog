@@ -1,4 +1,3 @@
-// App.tsx
 import type { ReactElement } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Chatbot from './components/ChatBot'

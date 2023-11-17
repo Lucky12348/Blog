@@ -1,3 +1,4 @@
+/* eslint-disable unicorn/no-null */
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQuery } from '@tanstack/react-query'
 
@@ -7,9 +8,9 @@ interface UserInfo {
 	_id: string
 }
 
-const fetchUserInfo = async (): Promise<UserInfo> => {
+const fetchUserInfo = async (): Promise<UserInfo | null> => {
 	const token = localStorage.getItem('token')
-	if (!token) return false
+	if (!token) return null
 	const response = await fetch('http://localhost:8000/user/me', {
 		method: 'GET',
 		headers: {
@@ -24,11 +25,11 @@ const fetchUserInfo = async (): Promise<UserInfo> => {
 		)
 	}
 
-	return response.json() as Promise<UserInfo>
+	return response.json() as Promise<UserInfo | null>
 }
 
-const useUserInfo = (): UseQueryResult<UserInfo | undefined> => {
-	const queryResult = useQuery<UserInfo>(['userInfo'], fetchUserInfo, {
+const useUserInfo = (): UseQueryResult<UserInfo | null> => {
+	const queryResult = useQuery<UserInfo | null>(['userInfo'], fetchUserInfo, {
 		retry: false
 	})
 

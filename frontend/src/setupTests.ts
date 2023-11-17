@@ -1,3 +1,4 @@
+/* eslint-disable */
 import '@testing-library/jest-dom'
 import mediaQuery from 'css-mediaquery'
 import server from 'mocks/server'

@@ -1,4 +1,3 @@
-/* eslint-disable */
 export default function TestFront(): React.ReactElement {
 	return (
 		<>
@@ -48,7 +47,10 @@ export default function TestFront(): React.ReactElement {
 								id='file_input'
 								type='file'
 							/>
-							<button className=' mx-auto block rounded-md bg-indigo-600 px-6 py-2 text-lg font-semibold text-indigo-100'>
+							<button
+								type='button'
+								className=' mx-auto block rounded-md bg-indigo-600 px-6 py-2 text-lg font-semibold text-indigo-100'
+							>
 								ADD POST
 							</button>
 						</div>
