@@ -85,8 +85,8 @@ function AddPost({
 	}
 
 	return (
-		<div className='min-h-screen bg-indigo-50 pt-6 md:px-20'>
-			<div className='mx-auto max-w-2xl rounded-md bg-white px-6 py-10 shadow-lg'>
+		<div className=''>
+			<div className='m-8 mx-auto max-w-2xl rounded-md bg-white px-6 py-10 shadow-2xl'>
 				<h1 className='mb-10 text-center text-3xl font-bold text-gray-700'>
 					ADD POST
 				</h1>

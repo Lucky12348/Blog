@@ -117,7 +117,7 @@ function Chatbot(): JSX.Element {
 		<>
 			<button
 				onClick={onToggleChatVisibility}
-				className='fixed bottom-4 right-4 m-0 inline-flex h-16 w-16 cursor-pointer items-center justify-center rounded-full border border-gray-200 bg-black bg-none p-0 text-sm font-medium normal-case leading-5 hover:bg-gray-700 hover:text-gray-900 disabled:pointer-events-none disabled:opacity-50'
+				className=' fixed bottom-4 right-4 m-0 inline-flex h-16 w-16 cursor-pointer items-center justify-center rounded-full border border-gray-200 bg-black bg-none p-0 text-sm font-medium normal-case leading-5 hover:bg-gray-700 hover:text-gray-900 disabled:pointer-events-none disabled:opacity-50'
 				type='button'
 				aria-haspopup='dialog'
 				aria-expanded={isChatVisible}
@@ -144,7 +144,7 @@ function Chatbot(): JSX.Element {
 
 			{isChatVisible ? (
 				<div
-					className='fixed bottom-[calc(4rem+1.5rem)] right-0 mr-4 h-[634px] w-[440px] rounded-lg border border-[#e5e7eb] bg-white p-6'
+					className='fixed bottom-[calc(4rem+1.5rem)] right-0 mr-4 h-[634px] w-[440px] rounded-lg border border-[#e5e7eb] bg-white p-6 shadow-md sm:w-[340px] md:w-[400px] lg:w-[440px]'
 					style={{
 						boxShadow: '0 0 #0000, 0 0 #0000, 0 1px 2px 0 rgb(0 0 0 / 0.05)'
 					}}
