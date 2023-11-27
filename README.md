@@ -1,4 +1,4 @@
-Blog avec FastAPI, React, MongoDB et ChatGPT
+# Blog avec FastAPI, React, MongoDB et ChatGPT
 
 Ce projet est un blog moderne qui utilise FastAPI pour le backend, React pour le frontend, et MongoDB pour la base de données. Il intègre également un chatbot alimenté par ChatGPT pour améliorer l'interaction utilisateur.
 Installation avec Docker
