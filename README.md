@@ -41,3 +41,7 @@ openai_client = OpenAI(api_key="TOKEN")
 Remplacez "TOKEN" par votre clé API OpenAI.
 
 Pour apporter des modifications à la fonctionnalité du chatbot, modifiez la fonction ask_openai dans le même fichier.
+
+Frontend : http://localhost:3000/
+Backend fastAPI : http://localhost:8000/docs
+Backend MongoExpress : http://localhost:8081
