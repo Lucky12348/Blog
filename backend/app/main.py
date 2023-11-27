@@ -17,7 +17,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 2000
 
 
-openai_client = OpenAI(api_key="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")
+openai_client = OpenAI(api_key="TOKEN")
 
 
 def create_access_token(data: dict):
